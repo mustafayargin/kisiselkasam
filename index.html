@@ -1,146 +1,40 @@
 <!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#07111f">
-  <title>Kişisel Kasa</title>
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kişisel Kasa</title>
+    <meta name="description" content="AES-256 ile şifrelenmiş kişisel dijital kasa" />
+    <meta name="theme-color" content="#F0EAE0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="robots" content="noindex, nofollow" />
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      #root {
+        height: 100%;
+      }
+    </style>
 
-  <section id="lockScreen" class="lock-screen">
-    <div class="demo-pill"><span></span> UÇTAN UCA ŞİFRELİ KASA</div>
-    <div class="lock-card glass">
-      <div class="vault-mark"><span class="shield"><img src="icons/icon.svg" alt="Kişisel Kasa"></span><i></i></div>
-      <p class="eyebrow">KİŞİSEL DİJİTAL KASA</p>
-      <h1>Tek anahtar.<br><em>Tüm dijital hayatın.</em></h1>
-      <p class="lock-copy">Hesapların, kartların, projelerin ve özel belgelerin tek güvenli alanda.</p>
-      <div class="status-row"><span class="pulse"></span><span>Kasa kilitli</span><b>Mustafa’nın Kasası</b></div>
-      <button id="biometricBtn" class="primary-btn google-login-btn"><span class="fingerprint">G</span><span><b>Google ile devam et</b><small>Firebase güvenli girişi</small></span><strong>›</strong></button>
-      <p id="firebaseAuthStatus" class="firebase-auth-status">Firebase bağlantısı hazırlanıyor...</p>
-      <button id="passwordBtn" class="text-btn">Google ile giriş yaptıktan sonra ana parolanı kullan</button>
-      <div class="lock-foot"><span>◈ AES-256 şifreleme</span><span>● Firebase senkronizasyonu</span></div>
-    </div>
-    <p class="demo-note">Ana parolan hiçbir zaman Firebase'e gönderilmez.</p>
-  </section>
+    <script src="./integration.js"></script>
+    <script type="module" src="./firebase-auth.js"></script>
+    <script type="module" crossorigin src="./script.js"></script>
+    <link rel="stylesheet" crossorigin href="./style.css" />
+  </head>
 
-  <div id="app" class="app hidden">
-    <aside class="sidebar glass">
-      <div class="brand"><div class="brand-icon"><img src="icons/icon.svg" alt=""></div><div><b>KİŞİSEL KASA</b><small>Dijital güvenlik merkezi</small></div></div>
-      <nav id="sideNav">
-        <button class="nav-item active" data-page="home"><span>⌂</span>Ana Sayfa</button>
-        <button class="nav-item" data-page="accounts"><span>⌘</span>Hesaplar</button>
-        <button class="nav-item" data-page="cards"><span>▰</span>Kartlarım</button>
-        <button class="nav-item" data-page="projects"><span>◇</span>Projelerim</button>
-        <button class="nav-item" data-page="notes"><span>▤</span>Güvenli Notlar</button>
-        <button class="nav-item" data-page="documents"><span>▧</span>Belgelerim</button>
-      </nav>
-      <div class="security-score"><div class="score-top"><span>Güvenlik durumu</span><b>KORUNUYOR</b></div><div class="score-bar"><i></i></div><small>Google doğrulama + AES-256</small></div>
-      <button id="desktopTools" class="lock-action">⚙ Güvenlik ve Yedekleme</button>
-      <button id="desktopLock" class="lock-action">⌾ Kasayı Kilitle</button>
-      <div class="profile-mini"><div>MY</div><span><b>Mustafa Yargın</b><small>Kişisel kasa</small></span><button>⋮</button></div>
-    </aside>
-
-    <main class="main-content">
-      <header class="topbar">
-        <div class="mobile-brand"><div class="brand-icon"><img src="icons/icon.svg" alt=""></div><span><b>KİŞİSEL KASA</b><small>Güvenli alan</small></span></div>
-        <div class="global-search"><span>⌕</span><input id="globalSearch" placeholder="Hesap, proje, kart veya not ara..."><kbd>⌘ K</kbd></div>
-        <div class="top-actions"><button id="privacyBtn" title="Gizlilik modu">◉</button><button id="securityToolsBtn" title="Güvenlik ve yedekleme">⚙</button><button id="mobileLock">⌾</button></div>
-      </header>
-
-      <section id="homePage" class="page active-page">
-        <div class="welcome-row"><div><p class="date-label">7 AĞUSTOS 2026, CUMA</p><h2>Günaydın, Mustafa <span>👋</span></h2><p>Dijital hayatın güvende. Bugün kontrol etmen gereken bir durum yok.</p></div><button class="quick-add open-add">＋ Yeni kayıt</button></div>
-
-        <section class="hero-vault">
-          <div class="hero-copy"><div class="secure-badge">● KASA AÇIK VE SENKRONİZE</div><h3>Kasan kullanıma hazır.</h3><p>Kayıtların cihazında şifrelenerek Firebase'e kaydedilir.</p><div class="hero-meta"><span><i>✓</i> AES-256 şifreli</span><span><i>✓</i> <b id="totalRecordCount">0</b> kayıt</span><span><i>✓</i> Firebase bağlı</span></div></div>
-          <div class="vault-visual"><div class="orbit orbit-a"></div><div class="orbit orbit-b"></div><div class="vault-core"><span>◆</span><b>✓</b><small>ŞİFRELİ</small></div></div>
-        </section>
-
-        <div class="section-heading"><div><h3>Kasan</h3><p>Tüm özel bilgilerin kategorilere ayrıldı.</p></div><button data-page="accounts" class="page-link">Tümünü gör ›</button></div>
-        <div class="category-grid">
-          <button class="category-card blue" data-page="accounts"><div class="cat-icon">⌘</div><span><b>Hesaplar</b><small>Google, Firebase ve diğerleri</small></span><strong id="homeAccountCount">0</strong><i>›</i></button>
-          <button class="category-card violet" data-page="cards"><div class="cat-icon">▰</div><span><b>Kartlarım</b><small>Banka ve kredi kartları</small></span><strong id="homeCardCount">0</strong><i>›</i></button>
-          <button class="category-card cyan" data-page="projects"><div class="cat-icon">◇</div><span><b>Projelerim</b><small>Bağlantılar ve kurulum notları</small></span><strong id="homeProjectCount">0</strong><i>›</i></button>
-          <button class="category-card amber" data-page="notes"><div class="cat-icon">▤</div><span><b>Güvenli Notlar</b><small>Kodlar ve özel bilgiler</small></span><strong id="homeNoteCount">0</strong><i>›</i></button>
-        </div>
-
-        <div class="dashboard-grid">
-          <section class="panel recent-panel"><div class="panel-title"><div><h3>Son kullanılanlar</h3><p>Yakın zamanda açtığın kayıtlar</p></div><button>•••</button></div>
-            <div id="recentList" class="recent-list"><div class="empty-inline">Henüz kayıt eklenmedi.</div></div>
-          </section>
-          <section class="panel activity-panel"><div class="panel-title"><div><h3>Güvenlik özeti</h3><p>Son 7 günlük kasa hareketi</p></div><span class="week-pill">Bu hafta⌄</span></div>
-            <div class="activity-ring"><div><b>12</b><small>GÜVENLİ<br>ERİŞİM</small></div></div>
-            <div class="activity-stats"><span><i class="green"></i><b>12</b><small>Başarılı giriş</small></span><span><i class="orange"></i><b>0</b><small>Şüpheli işlem</small></span></div>
-          </section>
-        </div>
-      </section>
-
-      <section id="accountsPage" class="page">
-        <div class="page-head"><div><p class="eyebrow">E-POSTA VE ÜYELİKLER</p><h2>Hesaplarım</h2><p>Gmail, Hotmail ve diğer hesapların; parolaları ve bağlı oldukları hizmetler.</p></div><button class="quick-add open-account-form">＋ Hesap ekle</button></div>
-        <div class="account-overview"><div><span>⌘</span><p><b id="accountTotalText">0 hesap</b><small>Kasada kayıtlı</small></p></div><div><span>✓</span><p><b id="accountSecureText">0 hesap</b><small>Şifreli kayıt</small></p></div><div><span>◇</span><p><b id="accountLinkText">0 bağlantı</b><small>Proje ve hizmet</small></p></div></div>
-        <div class="filter-row account-filters"><button class="active" data-filter="all">Tümü <b>6</b></button><button data-filter="gmail">Gmail <b>3</b></button><button data-filter="hotmail">Hotmail <b>1</b></button><button data-filter="username">Kullanıcı adı <b>1</b></button><button data-filter="service">Diğer <b>1</b></button></div>
-        <div id="accountGrid" class="item-grid"></div>
-      </section>
-
-      <section id="cardsPage" class="page">
-        <div class="page-head"><div><p class="eyebrow">DİJİTAL CÜZDAN</p><h2>Kartlarım</h2><p>Kart bilgilerin varsayılan olarak gizlenir.</p></div><button class="quick-add open-card-form">＋ Kart ekle</button></div>
-        <div id="cardGrid" class="card-list-grid"></div>
-      </section>
-
-      <section id="projectsPage" class="page"><div class="page-head"><div><p class="eyebrow">PROGRAMLAR VE ÇALIŞMA NOTLARI</p><h2>Projelerim</h2><p>Programın çalışma şekli, bağlı hesabı, GitHub, Firebase ve yayın adresleri.</p></div><button class="quick-add open-project-form">＋ Proje ekle</button></div>
-        <div class="project-tip"><span>◇</span><div><b>Bir projeye ait her şey tek ekranda</b><p>Hesap parolası projede tekrarlanmaz; güvenli şekilde Hesaplar bölümündeki ana kayda bağlanır.</p></div></div>
-        <div id="projectGrid" class="project-grid"></div>
-      </section>
-
-      <section id="notesPage" class="page generic-page"><div class="page-head"><div><p class="eyebrow">ÖZEL BİLGİLER</p><h2>Güvenli Notlar</h2><p>Kurtarma kodları, lisanslar ve yalnızca sana özel notlar.</p></div><button class="quick-add open-note-form">＋ Not ekle</button></div><div id="noteGrid" class="note-grid"></div></section>
-      <section id="documentsPage" class="page generic-page"><div class="page-head"><div><p class="eyebrow">ŞİFRELİ DOSYALAR</p><h2>Belgelerim</h2><p>Kimlik, ehliyet, ruhsat ve diğer önemli belgeler.</p></div><button class="quick-add open-document-form">＋ Belge ekle</button></div><div id="documentGrid" class="document-grid"></div></section>
-    </main>
-
-    <nav class="bottom-nav"><button class="active" data-page="home"><span>⌂</span><small>Ana Sayfa</small></button><button data-page="accounts"><span>⌕</span><small>Ara</small></button><button class="center-add open-add"><span>＋</span><small>Ekle</small></button><button data-page="projects"><span>◇</span><small>Projeler</small></button><button data-page="cards"><span>▰</span><small>Kasa</small></button></nav>
-  </div>
-
-  <div id="addModal" class="modal"><div class="modal-sheet"><div class="modal-head"><div><p class="eyebrow">YENİ KAYIT</p><h2>Kasana ne ekleyeceksin?</h2></div><button class="close-modal">×</button></div><div class="add-grid"><button class="open-account-form"><span class="blue-bg">⌘</span><b>Hesap</b><small>E-posta ve parola</small></button><button data-coming="Kart formu"><span class="violet-bg">▰</span><b>Kart</b><small>Banka veya kredi kartı</small></button><button class="open-project-form"><span class="cyan-bg">◇</span><b>Proje</b><small>Hesaplar ve kurulum</small></button><button data-coming="Not formu"><span class="amber-bg">▤</span><b>Güvenli not</b><small>Kod veya özel bilgi</small></button><button data-coming="Belge formu"><span class="green-bg">▧</span><b>Belge</b><small>Görsel veya PDF</small></button></div><p class="modal-warning">Kayıtlar ana parolanla şifrelenerek saklanır.</p></div></div>
-
-  <div id="accountDetailModal" class="modal"><div class="modal-sheet detail-sheet account-detail-sheet"><div class="detail-hero"><div id="accountDetailIcon" class="record-icon google">G</div><div><em id="accountDetailBadge" class="safe">2FA AÇIK</em><h2 id="accountDetailTitle">Ana Proje Gmail</h2><p id="accountDetailProvider">Google Hesabı</p></div><button class="close-account-detail">×</button></div><div class="detail-content"><label>E-POSTA / KULLANICI ADI</label><div class="secret-field"><span id="accountEmail">mus••••••@gmail.com</span><button id="copyAccountLogin" title="Kopyala">□</button></div><label>PAROLA</label><div class="secret-field"><span id="passwordValue" data-secret="Ornek-Parola-2026">••••••••••••••••</span><button id="revealPassword" title="Göster">◉</button><button id="copyAccountPassword" title="Kopyala">□</button></div><div class="account-purpose"><b>KULLANIM AMACI</b><p id="accountPurpose">GitHub, Firebase ve projelerin ana giriş hesabı.</p></div><div id="accountServices" class="linked-box"><p>BAĞLI HİZMETLER VE PROJELER</p></div><div class="detail-actions"><button id="editAccountBtn" class="secondary-btn">✎ Hesabı düzenle</button><button id="deleteAccountBtn" class="danger-btn">⌫ Hesabı sil</button></div></div></div></div>
-
-  <div id="projectDetailModal" class="modal"><div class="modal-sheet project-detail-sheet"><div class="project-detail-head"><div class="project-logo fixture">Fİ</div><div><em class="safe">AKTİF PROJE</em><h2 id="projectDetailTitle">Fikstür Programı</h2><p id="projectDetailDescription">Fikstür işlemleri ve bildirim sistemi</p></div><button class="close-project-detail">×</button></div><div class="project-detail-body"><section class="project-identity"><div><small>BAĞLI ANA HESAP</small><button id="projectAccountLink">⌘ Ana Proje Gmail <i>›</i></button></div><div><small>SON GÜNCELLEME</small><b>Bugün</b></div></section><div id="projectConnections" class="connection-grid"></div><section class="project-notes"><div class="notes-head"><div><small>PROGRAMIN ÇALIŞMA NOTLARI</small><h3>Nasıl çalışıyor?</h3></div><button id="editNotesBtn">✎ Notları düzenle</button></div><div id="projectNotesText" class="notes-content"></div></section><div class="project-detail-actions"><button id="editProjectBtn" class="secondary-btn">✎ Projeyi düzenle</button><button id="addConnectionBtn" class="quick-add">＋ Bağlantı ekle</button><button id="deleteProjectBtn" class="danger-btn">⌫ Sil</button></div></div></div></div>
-
-  <div id="accountFormModal" class="modal"><form id="accountForm" class="modal-sheet form-sheet"><div class="modal-head"><div><p class="eyebrow">YENİ HESAP</p><h2>E-posta veya kullanıcı hesabı ekle</h2></div><button type="button" class="close-account-form">×</button></div><div class="form-grid"><label class="wide">HESABA VERECEĞİN İSİM<input id="newAccountName" required placeholder="Örn. Şirket Programı"></label><label>GİRİŞ TÜRÜ<select id="newAccountProvider"><option value="gmail">Gmail</option><option value="hotmail">Hotmail / Outlook</option><option value="username">Kullanıcı adı + parola</option><option value="service">Diğer üyelik</option></select></label><label>E-POSTA VEYA KULLANICI ADI<input id="newAccountEmail" type="text" required placeholder="ornek@gmail.com veya MUSTAFA.Y"></label><label class="wide">PAROLA<input id="newAccountPassword" type="password" required placeholder="Hesap parolanı gir"></label><label class="wide">PROGRAM / GİRİŞ ADRESİ<input id="newAccountUrl" type="text" placeholder="Program adı veya https://..."></label><label class="wide">KULLANIM AMACI<textarea id="newAccountPurpose" placeholder="Bu hesap hangi programda ve ne amaçla kullanılıyor?"></textarea></label><label class="wide">BAĞLI HİZMETLER<input id="newAccountServices" placeholder="Şirket programı, modem paneli, Samsung..."></label></div><p class="form-warning">Bilgiler ana parolanla şifrelenerek Firebase'e kaydedilir.</p><button class="primary-btn simple" type="submit">Hesabı kaydet</button></form></div>
-
-  <div id="projectFormModal" class="modal"><form id="projectForm" class="modal-sheet form-sheet project-form-sheet"><div class="modal-head"><div><p class="eyebrow">YENİ PROJE</p><h2>Program ve çalışma notu ekle</h2></div><button type="button" class="close-project-form">×</button></div><div class="form-grid"><label class="wide">PROJE / PROGRAM ADI<input id="newProjectName" required placeholder="Örn. Fikstür Programı"></label><label class="wide">KISA AÇIKLAMA<input id="newProjectDescription" placeholder="Program ne işe yarıyor?"></label><label>BAĞLI ANA HESAP<select id="newProjectAccount"><option>Ana Proje Gmail</option><option>Kişisel Gmail</option><option>İş Hotmail Hesabı</option></select></label><label>YAYINLAMA<select id="newProjectHosting"><option>Vercel</option><option>Netlify</option><option>Cloudflare</option><option>Yerel EXE</option><option>Diğer</option></select></label><label class="wide">CANLI PROGRAM ADRESİ<input id="newProjectLive" placeholder="https://..."></label><label>GITHUB ADRESİ<input id="newProjectGithub" placeholder="https://github.com/..."></label><label>FIREBASE BİLGİSİ<input id="newProjectFirebase" placeholder="Proje adı veya adresi"></label><div id="projectConnectionSummary" class="wide project-connection-summary"></div><label class="wide">NASIL ÇALIŞIYOR / KURULUM NOTLARI<textarea id="newProjectNotes" rows="6" placeholder="Programın çalışma mantığını, yapılacak işlemleri ve önemli notları yaz..."></textarea></label></div><p class="form-warning">⚠ Deneme verisi yalnızca bu oturumda görünür ve yenileyince silinir.</p><button class="primary-btn simple" type="submit">Projeyi deneme listesine ekle</button></form></div>
-
-  <div id="connectionFormModal" class="modal"><form id="connectionForm" class="modal-sheet form-sheet small-form"><div class="modal-head"><div><p class="eyebrow">PROJE BAĞLANTISI</p><h2>Yeni hizmet veya adres</h2></div><button type="button" class="close-connection-form">×</button></div><div class="form-grid one-column"><label>HİZMET ADI<input id="connectionName" required placeholder="Örn. GitHub, Firebase, Vercel"></label><label>AÇIKLAMA<input id="connectionInfo" placeholder="Bu bağlantı ne için kullanılıyor?"></label><label>ADRES (İSTEĞE BAĞLI)<input id="connectionUrl" placeholder="https://..."></label></div><button class="primary-btn simple" type="submit">Bağlantıyı ekle</button></form></div>
-
-  <div id="notesFormModal" class="modal"><form id="notesForm" class="modal-sheet form-sheet"><div class="modal-head"><div><p class="eyebrow">ÇALIŞMA NOTLARI</p><h2>Program nasıl çalışıyor?</h2></div><button type="button" class="close-notes-form">×</button></div><div class="form-grid one-column"><label>NOTLAR<textarea id="editableProjectNotes" rows="12" required></textarea></label></div><button class="primary-btn simple" type="submit">Notları güncelle</button></form></div>
-
-  <div id="noteFormModal" class="modal"><form id="noteForm" class="modal-sheet form-sheet"><div class="modal-head"><div><p class="eyebrow">GÜVENLİ NOT</p><h2>Yeni not ekle</h2></div><button type="button" class="close-note-form">×</button></div><div class="form-grid one-column"><label>NOT BAŞLIĞI<input id="newNoteTitle" required placeholder="Örn. Program kurulum notları"></label><label>ETİKET<input id="newNoteTag" placeholder="Örn. Lisans, kurtarma, kurulum"></label><label>NOT İÇERİĞİ<textarea id="newNoteContent" rows="10" required placeholder="Notunu buraya yaz..."></textarea></label></div><p class="form-warning">⚠ Test aşamasında gerçek kurtarma kodu veya özel bilgi kullanma.</p><button class="primary-btn simple" type="submit">Notu deneme listesine ekle</button></form></div>
-
-  <div id="noteDetailModal" class="modal"><div class="modal-sheet form-sheet"><div class="modal-head"><div><p id="noteDetailTag" class="eyebrow">NOT</p><h2 id="noteDetailTitle">Not başlığı</h2></div><button type="button" class="close-note-detail">×</button></div><div id="noteDetailContent" class="note-detail-content"></div><div class="detail-actions"><button id="editNoteBtn" class="secondary-btn">✎ Notu düzenle</button><button id="deleteNoteBtn" class="danger-btn">⌫ Notu sil</button></div></div></div>
-
-  <div id="documentFormModal" class="modal"><form id="documentForm" class="modal-sheet form-sheet"><div class="modal-head"><div><p class="eyebrow">BELGE KASASI</p><h2>Yeni belge ekle</h2></div><button type="button" class="close-document-form">×</button></div><div class="form-grid"><label class="wide">BELGE ADI<input id="newDocumentName" required placeholder="Örn. Ehliyet ön yüz"></label><label>BELGE TÜRÜ<select id="newDocumentType"><option>Kimlik</option><option>Ehliyet</option><option>Ruhsat</option><option>Sözleşme</option><option>Diğer</option></select></label><label>DOSYA SEÇ<input id="newDocumentFile" type="file" accept="image/*,.pdf,application/pdf"></label><label class="wide">AÇIKLAMA<input id="newDocumentNote" placeholder="Belgeyle ilgili kısa açıklama"></label></div><p id="documentFileHint" class="form-warning">⚠ Test için örnek bir görsel veya PDF seç. Gerçek kişisel belge kullanma.</p><button class="primary-btn simple" type="submit">Belgeyi deneme listesine ekle</button></form></div>
-
-  <div id="documentDetailModal" class="modal"><div class="modal-sheet form-sheet document-detail-sheet"><div class="modal-head"><div><p id="documentDetailType" class="eyebrow">BELGE</p><h2 id="documentDetailName">Belge adı</h2></div><button type="button" class="close-document-detail">×</button></div><div id="documentPreview" class="document-preview"></div><p id="documentDetailNote" class="document-detail-note"></p><div class="detail-actions"><button id="editDocumentBtn" class="secondary-btn">✎ Belgeyi düzenle</button><button id="deleteDocumentBtn" class="danger-btn">⌫ Belgeyi sil</button></div></div></div>
-
-  <div id="cardFormModal" class="modal"><form id="cardForm" class="modal-sheet form-sheet"><div class="modal-head"><div><p class="eyebrow">YENİ KART</p><h2>Banka veya kredi kartı ekle</h2></div><button type="button" class="close-card-form">×</button></div><div class="form-grid"><label class="wide">KARTA VERECEĞİN İSİM<input id="newCardName" required placeholder="Örn. Günlük kullanım kartım"></label><label>BANKA ADI<input id="newCardBank" required placeholder="Banka adı"></label><label>KART TÜRÜ<select id="newCardType"><option>Kredi kartı</option><option>Banka kartı</option><option>Sanal kart</option></select></label><label class="wide">KART SAHİBİ<input id="newCardHolder" required placeholder="Ad Soyad"></label><label class="wide">KART NUMARASI<input id="newCardNumber" required inputmode="numeric" maxlength="19" placeholder="0000 0000 0000 0000"></label><label>SON KULLANMA<input id="newCardExpiry" required maxlength="5" placeholder="AA/YY"></label><label>CVV<input id="newCardCvv" required inputmode="numeric" maxlength="4" placeholder="000"></label><label class="wide">HESAP KESİM / NOT<input id="newCardNote" placeholder="Örn. Her ayın 12'si"></label></div><p class="form-warning">⚠ Test aşamasında gerçek kart bilgisi kullanma. Veriler yenileyince silinir.</p><button class="primary-btn simple" type="submit">Kartı deneme listesine ekle</button></form></div>
-
-  <div id="cardDetailModal" class="modal"><div class="modal-sheet card-detail-sheet"><div id="detailCreditCard" class="credit-card"><div class="card-face card-front"><div class="card-brand"><span id="cardDetailBank">BANKA</span><i id="cardDetailType">KART</i></div><div class="chip">▦</div><div id="cardDetailNumber" class="card-number">•••• •••• •••• 0000</div><div class="card-bottom"><span><small>KART SAHİBİ</small><b id="cardDetailHolder">AD SOYAD</b></span><span><small>SON KULLANMA</small><b id="cardDetailExpiry">00/00</b></span><strong>◉◉</strong></div></div><div class="card-face card-back"><div class="magnetic"></div><div class="signature"><span id="cardDetailSignature">Ad Soyad</span><b id="cardDetailCvv">•••</b></div><p>Kartın arka yüzü yalnızca sen istediğinde gösterilir.</p></div></div><h2 id="cardDetailTitle">Kartım</h2><p id="cardDetailNote" class="card-detail-note"></p><div class="card-controls"><button id="flipCard">↻ Kartı çevir</button><button id="revealCard">◉ Bilgileri göster</button></div><div class="detail-actions"><button id="editCardBtn" class="secondary-btn">✎ Kartı düzenle</button><button id="deleteCardBtn" class="danger-btn">⌫ Kartı sil</button></div><button class="close-card-detail close-detail-bottom">Kapat</button></div></div>
-
-  <div id="confirmModal" class="modal"><div class="modal-sheet confirm-sheet"><div class="confirm-icon">!</div><h2 id="confirmTitle">Kaydı silmek istiyor musun?</h2><p id="confirmMessage">Bu işlem kaydı kalıcı olarak kaldıracak.</p><div class="confirm-actions"><button id="cancelConfirm" class="secondary-btn">Vazgeç</button><button id="approveConfirm" class="danger-btn">Evet, sil</button></div></div></div>
-
-  <div id="passwordModal" class="modal"><div class="modal-sheet password-sheet"><div class="finger-large">◎</div><h2 id="masterPasswordTitle">Ana parola</h2><p id="masterPasswordHelp">Kasanı açmak için ana parolanı gir.</p><input id="demoPassword" type="password" minlength="10" autocomplete="current-password" placeholder="Ana parolanı gir"><input id="confirmMasterPassword" class="hidden" type="password" minlength="10" autocomplete="new-password" placeholder="Ana parolanı tekrar gir"><p class="master-warning">Ana parolanı unutursan kurtarma anahtarınla yenileyebilirsin.</p><button id="unlockPassword" class="primary-btn simple">Kasayı aç</button><button id="forgotPasswordBtn" class="text-btn hidden">Ana parolamı unuttum</button></div></div>
-
-  <div id="recoveryModal" class="modal"><div class="modal-sheet recovery-sheet"><div class="finger-large">⌘</div><h2>Ana parolayı sıfırla</h2><p>Google hesabın doğrulandı. Kurtarma belgendeki anahtarı ve yeni ana parolanı gir.</p><input id="recoveryCodeInput" autocomplete="off" placeholder="XXXX-XXXX-XXXX-XXXX-..."><input id="recoveryNewPassword" type="password" minlength="10" autocomplete="new-password" placeholder="Yeni ana parola"><input id="recoveryNewPasswordConfirm" type="password" minlength="10" autocomplete="new-password" placeholder="Yeni ana parolayı tekrar gir"><button id="recoverVaultBtn" class="primary-btn simple">Parolayı sıfırla ve kasayı aç</button><button class="close-recovery text-btn">Vazgeç</button></div></div>
-
-  <div id="recoveryCodeModal" class="modal"><div class="modal-sheet recovery-sheet"><div class="finger-large">✓</div><h2>Kurtarma anahtarını sakla</h2><p>Bu anahtar yalnızca şimdi gösterilir. Ana parolanı unutursan verilerini kurtarmak için gerekir.</p><code id="recoveryCodeValue" class="recovery-code"></code><div class="recovery-actions"><button id="copyRecoveryCode" class="secondary-btn">Kopyala</button><button id="downloadRecoveryCode" class="primary-btn simple">Kurtarma belgesini indir</button></div><label class="recovery-check"><input id="recoverySavedCheck" type="checkbox"> Anahtarı güvenli bir yerde sakladım</label><button id="closeRecoveryCode" class="primary-btn simple" disabled>Kasaya devam et</button></div></div>
-
-  <div id="securityToolsModal" class="modal"><div class="modal-sheet form-sheet security-tools-sheet"><div class="modal-head"><div><p class="eyebrow">GÜVENLİK MERKEZİ</p><h2>Yedekleme ve kurtarma</h2></div><button class="close-security-tools">×</button></div><div class="security-tool-grid"><button id="installPwaBtn"><span>▣</span><b>Uygulamayı yükle</b><small>Telefon veya bilgisayara PWA kur</small></button><button id="exportBackupBtn"><span>⇩</span><b>Şifreli yedek indir</b><small>Kasanın taşınabilir yedeğini al</small></button><button id="importBackupBtn"><span>⇧</span><b>Yedeği geri yükle</b><small>Önceki şifreli yedeği seç</small></button><button id="rotateRecoveryBtn"><span>⌘</span><b>Yeni kurtarma anahtarı</b><small>Eski kurtarma anahtarını geçersiz kıl</small></button></div><input id="backupFileInput" class="hidden" type="file" accept="application/json,.json"><p class="form-warning">Yedek dosyası şifrelidir; yine de güvenli bir yerde sakla.</p></div></div>
-  <div id="toast" class="toast">✓ Kopyalandı</div>
-  <script src="app.js"></script>
-  <script type="module" src="firebase-auth.js"></script>
-</body>
+  <body>
+    <div id="root"></div>
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => navigator.serviceWorker.register("./service-worker.js").catch(() => {}));
+      }
+    </script>
+  </body>
 </html>
