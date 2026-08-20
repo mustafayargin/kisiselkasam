@@ -1,4 +1,4 @@
-const CACHE='kisisel-kasa-v3-integrated-7';
+const CACHE='kisisel-kasa-v3-integrated-8';
 const APP_FILES=['./','./index.html','./style.css','./script.js','./integration.js','./firebase-auth.js','./manifest.webmanifest','./icons/icon.svg','./icons/icon-192.png','./icons/icon-512.png','./icons/login-safe-v2.png','./offline.html'];
 self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP_FILES)).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim()))});
