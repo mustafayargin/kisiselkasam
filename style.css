@@ -4421,6 +4421,25 @@
   }
 }
 
+/* Mobilde güvenlik rozetlerine uzun basınca metin/görsel arama menüsü açılmasın. */
+.kasa-no-longpress,
+.kasa-no-longpress * {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.kasa-no-longpress {
+  touch-action: manipulation;
+}
+
+.kasa-no-longpress svg,
+.kasa-no-longpress img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
 /* Kisisel Kasa temali onay ve duzenleme pencereleri. */
 .kasa-dialog-overlay {
   position: absolute;
@@ -4614,8 +4633,8 @@
 }
 
 .security-logo {
-  width: 88px;
-  height: 88px;
+  width: 200px;
+  height: 200px;
   margin: 0 auto 16px;
   display: flex;
   align-items: center;

@@ -8,6 +8,7 @@
   let currentVault = { accounts: {}, projects: {}, cards: {}, secureNotes: {}, documents: {} };
   let vaultReady = false;
   let saveTimer = null;
+  let lastAutoSyncAt = 0;
   nativeSetItem.call(localStorage, RECORDS_KEY, EMPTY_UI);
   nativeSetItem.call(localStorage, ACTIVITY_KEY, "[]");
 
@@ -282,5 +283,16 @@
     await window.kasaDialog?.({ title: "Kurtarma Anahtarın", message: `Bu anahtarı çevrimdışı ve güvenli bir yerde sakla:\n\n${code}`, confirmText: "Kaydettim" });
   });
   document.addEventListener("vault-saved", () => window.dispatchEvent(new CustomEvent("kasa-firebase-saved")));
+  document.addEventListener("vault-sync-started", () => window.dispatchEvent(new CustomEvent("kasa-firebase-sync-started")));
+  document.addEventListener("vault-sync-complete", () => window.dispatchEvent(new CustomEvent("kasa-firebase-sync-complete")));
+  document.addEventListener("vault-sync-failed", (event) => window.dispatchEvent(new CustomEvent("kasa-firebase-sync-failed", { detail: event.detail })));
+  const autoSync = () => {
+    const now = Date.now();
+    if (!vaultReady || document.visibilityState !== "visible" || now - lastAutoSyncAt < 15000) return;
+    lastAutoSyncAt = now;
+    document.dispatchEvent(new CustomEvent("vault-sync-request", { detail: { automatic: true } }));
+  };
+  document.addEventListener("visibilitychange", autoSync);
+  window.addEventListener("pageshow", autoSync);
   document.addEventListener("DOMContentLoaded", createGate);
 })();

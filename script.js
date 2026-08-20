@@ -10396,7 +10396,7 @@ function kr({ title: x, onBack: S, onAdd: h }) {
     ],
   });
 }
-function Hd({ onNavigate: x, onAdd: S, counts: h = {} }) {
+function Hd({ onNavigate: x, onAdd: S, onSync: syncFirebase, syncState = "idle", counts: h = {} }) {
   return s.jsxs("div", {
     className: "flex-1 overflow-hidden px-4 pb-2",
     style: { fontFamily: "'Inter', sans-serif" },
@@ -10455,7 +10455,9 @@ function Hd({ onNavigate: x, onAdd: S, counts: h = {} }) {
           }),
           s.jsxs("div", {
             className:
-              "ml-2 bg-white rounded-2xl px-2.5 py-1.5 shadow-sm border border-green-100 flex items-center gap-1.5 flex-shrink-0",
+              "kasa-no-longpress ml-2 bg-white rounded-2xl px-2.5 py-1.5 shadow-sm border border-green-100 flex items-center gap-1.5 flex-shrink-0",
+            onContextMenu: (event) => event.preventDefault(),
+            onDragStart: (event) => event.preventDefault(),
             children: [
               s.jsx(md, { size: 15, className: "text-green-500" }),
               s.jsx("span", {
@@ -10468,7 +10470,9 @@ function Hd({ onNavigate: x, onAdd: S, counts: h = {} }) {
         ],
       }),
       s.jsxs("div", {
-        className: "flex gap-2 mb-3 flex-nowrap",
+        className: "kasa-no-longpress flex gap-2 mb-3 flex-nowrap",
+        onContextMenu: (event) => event.preventDefault(),
+        onDragStart: (event) => event.preventDefault(),
         children: [
           s.jsxs("div", {
             className:
@@ -10481,14 +10485,18 @@ function Hd({ onNavigate: x, onAdd: S, counts: h = {} }) {
               }),
             ],
           }),
-          s.jsxs("div", {
+          s.jsxs("button", {
+            type: "button",
+            onClick: syncFirebase,
+            disabled: syncState === "syncing",
+            "aria-label": "Firebase verilerini şimdi senkronize et",
             className:
-              "flex-1 flex items-center justify-center gap-1.5 bg-white rounded-xl px-2 py-1.5 shadow-sm border border-gray-100",
+              "flex-1 flex items-center justify-center gap-1.5 bg-white rounded-xl px-2 py-1.5 shadow-sm border border-gray-100 active:scale-[0.98] transition-transform disabled:opacity-70",
             children: [
-              s.jsx(_d, { size: 13, className: "text-green-500" }),
+              s.jsx(_d, { size: 13, className: syncState === "error" ? "text-red-500" : "text-green-500" }),
               s.jsx("span", {
                 className: "text-[11px] font-semibold text-gray-700",
-                children: "Firebase Senkron",
+                children: syncState === "syncing" ? "Senkronize..." : syncState === "done" ? "Güncel ✓" : syncState === "error" ? "Tekrar Dene" : "Firebase Senkron",
               }),
             ],
           }),
@@ -12623,6 +12631,7 @@ function Xd() {
     [h, L] = Qe.useState("anasayfa"),
     [F, A] = Qe.useState(!1),
     [Oe, Ne] = Qe.useState(0),
+    [firebaseSyncState, setFirebaseSyncState] = Qe.useState("idle"),
     [Z, I] = Qe.useState(() => {
       try {
         const V = localStorage.getItem("kisisel-kasa-v3-local-records");
@@ -12751,6 +12760,10 @@ function Xd() {
       setActivities([]);
       localStorage.setItem("kisisel-kasa-v3-activities", "[]");
     },
+    syncFirebase = () => {
+      setFirebaseSyncState("syncing");
+      document.dispatchEvent(new CustomEvent("vault-sync-request", { detail: { automatic: false } }));
+    },
     ee = (ce) => A(ce),
     ce = (T) => {
       (S(T), L(T === "home" ? "anasayfa" : "kasa"));
@@ -12780,14 +12793,33 @@ function Xd() {
         Ne((we.detail.belgeler || []).length);
       }
     };
+    let syncResetTimer;
+    const syncStartedListener = () => setFirebaseSyncState("syncing");
+    const syncCompleteListener = () => {
+      setFirebaseSyncState("done");
+      clearTimeout(syncResetTimer);
+      syncResetTimer = setTimeout(() => setFirebaseSyncState("idle"), 2200);
+    };
+    const syncFailedListener = () => {
+      setFirebaseSyncState("error");
+      clearTimeout(syncResetTimer);
+      syncResetTimer = setTimeout(() => setFirebaseSyncState("idle"), 3000);
+    };
     window.addEventListener("kasa-documents-changed", T);
     window.addEventListener("kasa-activity", activityListener);
     window.addEventListener("kasa-records-loaded", recordsListener);
+    window.addEventListener("kasa-firebase-sync-started", syncStartedListener);
+    window.addEventListener("kasa-firebase-sync-complete", syncCompleteListener);
+    window.addEventListener("kasa-firebase-sync-failed", syncFailedListener);
     return () => {
       G = !1;
       window.removeEventListener("kasa-documents-changed", T);
       window.removeEventListener("kasa-activity", activityListener);
       window.removeEventListener("kasa-records-loaded", recordsListener);
+      window.removeEventListener("kasa-firebase-sync-started", syncStartedListener);
+      window.removeEventListener("kasa-firebase-sync-complete", syncCompleteListener);
+      window.removeEventListener("kasa-firebase-sync-failed", syncFailedListener);
+      clearTimeout(syncResetTimer);
     };
   }, []);
   return s.jsx("div", {
@@ -12814,6 +12846,8 @@ function Xd() {
               s.jsx(Hd, {
                 onNavigate: ce,
                 onAdd: () => ee("choose"),
+                onSync: syncFirebase,
+                syncState: firebaseSyncState,
                 counts: {
                   hesaplar: (Z.hesaplar || []).length - (Z.deletedAccounts || []).length,
                   kartlar: (Z.kartlar || []).length - (Z.deletedCards || []).length,
