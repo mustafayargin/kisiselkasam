@@ -10825,7 +10825,7 @@ function kasaDialog({
     cancelButton.type = "button";
     cancelButton.className = "kasa-dialog-cancel";
     cancelButton.textContent = "Vazgeç";
-    confirmButton.type = "submit";
+    confirmButton.type = "button";
     confirmButton.className = `kasa-dialog-confirm ${danger ? "is-danger" : ""}`;
     confirmButton.textContent = confirmText;
     actions.append(cancelButton, confirmButton);
@@ -10835,21 +10835,31 @@ function kasaDialog({
     panel.appendChild(actions);
     overlay.appendChild(panel);
     host.appendChild(overlay);
+    let settled = !1;
     const close = (value) => {
+      if (settled) return;
+      settled = !0;
       document.removeEventListener("keydown", onKeyDown);
       overlay.classList.remove("is-open");
       setTimeout(() => overlay.remove(), 180);
       resolve(value);
     },
-      onKeyDown = (event) => event.key === "Escape" && close(null);
-    cancelButton.onclick = () => close(null);
-    overlay.onclick = (event) => event.target === overlay && close(null);
-    panel.onsubmit = (event) => {
+      onKeyDown = (event) => event.key === "Escape" && close(null),
+      submitDialog = (event) => {
       event.preventDefault();
+      event.stopPropagation();
       const values = {};
       Object.entries(controls).forEach(([key, control]) => (values[key] = control.value));
       close(fields.length ? values : !0);
     };
+    cancelButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      close(null);
+    });
+    confirmButton.addEventListener("click", submitDialog);
+    overlay.addEventListener("click", (event) => event.target === overlay && close(null));
+    panel.addEventListener("submit", submitDialog);
     document.addEventListener("keydown", onKeyDown);
     requestAnimationFrame(() => {
       overlay.classList.add("is-open");

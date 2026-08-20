@@ -179,9 +179,7 @@
     gate.id = "kasaSecurityGate";
     gate.innerHTML = `
       <div class="security-gate-card">
-        <div class="security-logo">
-  <img src="./icons/login-safe-v2.png" alt="Kişisel Kasa logosu">
-</div>
+        <div class="security-logo"><img src="./icons/login-safe-v2.png" alt="Kişisel Kasa logosu"></div>
         <p class="security-eyebrow">KİŞİSEL KASA</p>
         <h1 id="securityGateTitle">Güvenli dijital yaşam</h1>
         <p id="securityGateText">Firebase bağlantısı hazırlanıyor…</p>
