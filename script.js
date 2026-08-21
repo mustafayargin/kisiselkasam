@@ -10905,6 +10905,73 @@ async function kasaCopyText(value) {
   return copied;
 }
 
+function AccountProviderLogo({ type, size = 22 }) {
+  if (type === "google")
+    return s.jsxs("svg", {
+      className: "kasa-provider-logo",
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      "aria-hidden": !0,
+      children: [
+        s.jsx("path", { d: "M3.5 7 12 13.5 20.5 7", stroke: "#EA4335", strokeWidth: "3.1", strokeLinecap: "round", strokeLinejoin: "round" }),
+        s.jsx("path", { d: "M3.5 7v10", stroke: "#4285F4", strokeWidth: "3.1", strokeLinecap: "round" }),
+        s.jsx("path", { d: "M20.5 7v10", stroke: "#34A853", strokeWidth: "3.1", strokeLinecap: "round" }),
+        s.jsx("path", { d: "M3.5 17h4", stroke: "#FBBC04", strokeWidth: "3.1", strokeLinecap: "round" }),
+        s.jsx("path", { d: "M16.5 17h4", stroke: "#4285F4", strokeWidth: "3.1", strokeLinecap: "round" }),
+      ],
+    });
+  if (type === "microsoft")
+    return s.jsxs("svg", {
+      className: "kasa-provider-logo",
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      "aria-hidden": !0,
+      children: [
+        s.jsx("rect", { x: "3", y: "5", width: "10.5", height: "14", rx: "2.2", fill: "#0A64C9" }),
+        s.jsx("path", { d: "M11 8h9.3c.9 0 1.7.7 1.7 1.7v7.1c0 .9-.8 1.7-1.7 1.7H11z", fill: "#1473E6" }),
+        s.jsx("path", { d: "m11 9.5 5.5 4 5.5-4", stroke: "#8ED1FC", strokeWidth: "1.4", strokeLinejoin: "round" }),
+        s.jsx("circle", { cx: "8.2", cy: "12", r: "2.7", stroke: "white", strokeWidth: "1.6" }),
+      ],
+    });
+  if (type === "work")
+    return s.jsxs("svg", {
+      className: "kasa-provider-logo",
+      width: size,
+      height: size,
+      viewBox: "0 0 24 24",
+      fill: "none",
+      stroke: "#16834C",
+      strokeWidth: "1.8",
+      strokeLinecap: "round",
+      strokeLinejoin: "round",
+      "aria-hidden": !0,
+      children: [
+        s.jsx("rect", { x: "3", y: "7", width: "18", height: "12", rx: "3" }),
+        s.jsx("path", { d: "M8 7V5.5A1.5 1.5 0 0 1 9.5 4h5A1.5 1.5 0 0 1 16 5.5V7M3 12h18M10 12v2h4v-2" }),
+      ],
+    });
+  return s.jsxs("svg", {
+    className: "kasa-provider-logo",
+    width: size,
+    height: size,
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "#7C3AED",
+    strokeWidth: "1.8",
+    strokeLinecap: "round",
+    strokeLinejoin: "round",
+    "aria-hidden": !0,
+    children: [
+      s.jsx("circle", { cx: "8", cy: "12", r: "4" }),
+      s.jsx("path", { d: "M12 12h9M18 12v3M15 12v2" }),
+    ],
+  });
+}
+
 function Wd({
   onBack: x,
   onAdd: Te,
@@ -10918,9 +10985,12 @@ function Wd({
     [L, F] = Qe.useState(new Set()),
     [A, Z] = Qe.useState(null),
     [accountOpen, setAccountOpen] = Qe.useState(null),
+    [expandedAccount, setExpandedAccount] = Qe.useState(null),
+    [openGroups, setOpenGroups] = Qe.useState(new Set()),
     [editingAccount, setEditingAccount] = Qe.useState(null),
     [accountForm, setAccountForm] = Qe.useState({}),
     accountStartX = Qe.useRef(0),
+    accountSwipeMoved = Qe.useRef(!1),
     I = (T) =>
       F((G) => {
         const we = new Set(G);
@@ -10940,6 +11010,29 @@ function Wd({
           T.name.toLowerCase().includes(S.toLowerCase()) ||
           T.username.toLowerCase().includes(S.toLowerCase()),
       ),
+    accountGroup = (T) => {
+      const value = `${T.name || ""} ${T.username || ""}`.toLocaleLowerCase("tr"),
+        domain = String(T.username || "").split("@")[1]?.toLowerCase() || "";
+      if (/gmail|googlemail|\bgoogle\b/.test(value)) return "google";
+      if (/hotmail|outlook|live\.com|msn\.com|\bmicrosoft\b/.test(value)) return "microsoft";
+      const personalDomains = ["yahoo.com", "yandex.com", "yandex.com.tr", "icloud.com", "me.com", "proton.me", "protonmail.com", "mail.com", "gmx.com"];
+      if (domain && !personalDomains.includes(domain)) return "work";
+      return "other";
+    },
+    groupDefinitions = [
+      { id: "google", title: "Google / Gmail", subtitle: "Google hesapların", icon: "G", color: "#1B4DD8", bg: "#EAF0FF", gradient: "linear-gradient(135deg,#eef3ff,#ffffff)" },
+      { id: "microsoft", title: "Microsoft / Outlook", subtitle: "Hotmail, Live ve Outlook", icon: "M", color: "#2563EB", bg: "#EAF4FF", gradient: "linear-gradient(135deg,#eaf6ff,#ffffff)" },
+      { id: "work", title: "İş / Kurumsal", subtitle: "Kurumsal e-posta hesapların", icon: "İ", color: "#16834C", bg: "#E8F6EF", gradient: "linear-gradient(135deg,#eaf8f0,#ffffff)" },
+      { id: "other", title: "Diğer Hesaplar", subtitle: "Diğer servis ve üyelikler", icon: "•", color: "#7C3AED", bg: "#F2ECFF", gradient: "linear-gradient(135deg,#f4efff,#ffffff)" },
+    ],
+    accountGroups = groupDefinitions
+      .map((group) => ({ ...group, records: ee.filter((record) => accountGroup(record) === group.id) }))
+      .filter((group) => group.records.length),
+    toggleGroup = (id) => setOpenGroups((current) => {
+      const next = new Set(current);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    }),
     editAccount = (T) => {
       setEditingAccount(T);
       setAccountForm({ name: T.name, username: T.username, password: T.password });
@@ -10949,8 +11042,7 @@ function Wd({
       if (!editingAccount) return;
       updateAccount({ ...editingAccount, ...accountForm });
       setEditingAccount(null);
-    },
-    ce = ["", "#ef4444", "#f59e0b", "#22c55e", "#16a34a"];
+    };
   return s.jsxs("div", {
     className: "relative flex-1 overflow-y-auto",
     style: { fontFamily: "'Inter', sans-serif" },
@@ -10981,23 +11073,46 @@ function Wd({
             className: "text-xs text-gray-500 font-medium",
             children: [ee.length, " hesap"],
           }),
-          s.jsx("span", {
-            className: "text-xs text-[#1B4DD8] font-semibold cursor-pointer",
-            children: "Filtrele",
-          }),
+          s.jsxs("span", { className: "text-[10px] text-gray-400", children: [accountGroups.length, " grup"] }),
         ],
       }),
       s.jsx("div", {
-        className: "px-5 space-y-3 pb-4",
-        children: ee.map((T) =>
-          s.jsxs(
-            "div",
-            {
+        className: "px-5 space-y-2.5 pb-4",
+        children: accountGroups.map((group, groupIndex) => s.jsxs("section", {
+          className: "bg-white rounded-2xl shadow-sm overflow-hidden",
+          style: { border: "1px solid rgba(226,229,235,.82)", boxShadow: "0 7px 20px rgba(47,55,70,.065)" },
+          children: [
+            s.jsxs("button", {
+              type: "button",
+              onClick: () => toggleGroup(group.id),
+              className: "kasa-account-group-button w-full flex items-center gap-3 pl-5 pr-4 py-3 text-left active:opacity-80 transition-opacity",
+              style: {
+  paddingLeft: "10px",
+  background: `linear-gradient(115deg,${group.bg}cc 0%,#ffffff 72%)`
+},
+              children: [
+                s.jsx("span", { className: "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0", style: { background: "rgba(255,255,255,.92)", boxShadow: `inset 0 0 0 1px ${group.color}16,0 4px 10px ${group.color}12` }, children: s.jsx(AccountProviderLogo, { type: group.id, size: 23 }) }),
+                s.jsxs("span", { className: "flex-1 min-w-0", children: [
+                  s.jsx("span", { className: "block text-[13px] font-bold text-[#1A1A2E] leading-tight", children: group.title }),
+                  s.jsx("span", { className: "block text-[9px] text-gray-400 truncate mt-1", children: group.subtitle }),
+                ] }),
+                s.jsx("span", { className: "min-w-7 h-7 px-2 rounded-full flex items-center justify-center text-[10px] font-bold", style: { color: group.color, background: "rgba(255,255,255,.92)" }, children: group.records.length }),
+                s.jsx("span", { className: "w-6 h-6 flex items-center justify-center text-gray-400 text-lg transition-transform", style: { transform: openGroups.has(group.id) ? "rotate(90deg)" : "rotate(0deg)" }, children: "›" }),
+              ],
+            }),
+            openGroups.has(group.id) && s.jsx("div", {
+              className: "border-t border-gray-100",
+              children: group.records.map((T, accountIndex) => s.jsxs("div", {
               className:
-                "relative rounded-2xl overflow-hidden shadow-sm border border-gray-100",
-              onPointerDown: (G) => (accountStartX.current = G.clientX),
+                "relative overflow-hidden",
+              style: { borderTop: accountIndex ? "1px solid #F0F1F3" : "0" },
+              onPointerDown: (G) => {
+                accountStartX.current = G.clientX;
+                accountSwipeMoved.current = !1;
+              },
               onPointerUp: (G) => {
                 const we = G.clientX - accountStartX.current;
+                accountSwipeMoved.current = Math.abs(we) > 10;
                 we < -35
                   ? setAccountOpen(T.id)
                   : we > 35 && setAccountOpen(null);
@@ -11027,57 +11142,53 @@ function Wd({
                 }),
                 s.jsxs("div", {
                   className:
-                    "kasa-swipe-hint relative bg-white p-4 transition-transform",
-                  style: {
-                    transform:
-                      accountOpen === T.id
-                        ? "translateX(-116px)"
-                        : "translateX(0)",
-                    transition: "transform 320ms cubic-bezier(.22,.8,.3,1)",
-                    touchAction: "pan-y",
+                    `${groupIndex === 0 && accountIndex === 0 ? "kasa-swipe-hint " : ""}relative bg-white pl-5 pr-4 py-3 transition-transform`,
+                  
+style: {
+  paddingLeft: "10px",
+  transform:
+    accountOpen === T.id
+      ? "translateX(-116px)"
+      : "translateX(0)",
+  transition: "transform 320ms cubic-bezier(.22,.8,.3,1)",
+  touchAction: "pan-y",
+},
+                  onClick: () => {
+                    if (accountSwipeMoved.current) return;
+                    setExpandedAccount((current) => current === T.id ? null : T.id);
+                    setAccountOpen(null);
                   },
                   children: [
                 s.jsxs("div", {
-                  className: "flex items-center gap-3 mb-3",
+                  className: "flex items-center gap-2.5",
                   children: [
                     s.jsx("div", {
                       className:
-                        "w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0",
-                      style: { backgroundColor: T.bg + "18" },
-                      children: T.emoji,
+                        "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
+                      style: { background: group.bg, color: group.color, boxShadow: `inset 0 0 0 1px ${group.color}10` },
+                      children: s.jsx(AccountProviderLogo, { type: group.id, size: 20 }),
                     }),
                     s.jsxs("div", {
                       className: "flex-1 min-w-0",
                       children: [
                         s.jsx("div", {
-                          className: "font-semibold text-[#1A1A2E] text-sm",
+                          className: "font-semibold text-[#1A1A2E] text-[12px] leading-tight",
                           children: T.name,
                         }),
                         s.jsx("div", {
-                          className: "text-gray-500 text-xs truncate",
+                          className: "text-gray-400 text-[10px] truncate mt-1",
                           children: T.username,
                         }),
                       ],
                     }),
-                    s.jsxs("div", {
-                      className: "text-right flex-shrink-0",
-                      children: [
-                        s.jsx("div", {
-                          className: "text-xs font-semibold",
-                          style: { color: ce[T.strengthLevel] },
-                          children: T.strength,
-                        }),
-                        s.jsx("div", {
-                          className: "text-[10px] text-gray-400",
-                          children: T.lastUsed,
-                        }),
-                      ],
-                    }),
+                    s.jsx("span", { className: "w-6 h-6 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 text-sm", children: expandedAccount === T.id ? "⌄" : "›" }),
                   ],
                 }),
-                s.jsxs("div", {
+                expandedAccount === T.id && s.jsxs("div", {
                   className:
-                    "flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2.5 mb-2.5",
+                    "flex items-center gap-2 rounded-xl px-3 py-2 mt-2",
+                  style: { background: group.bg + "88" },
+                  onClick: (event) => event.stopPropagation(),
                   children: [
                     s.jsx(Ka, {
                       size: 12,
@@ -11107,31 +11218,13 @@ function Wd({
                     }),
                   ],
                 }),
-                s.jsx("div", {
-                  className: "flex gap-1",
-                  children: [1, 2, 3, 4].map((G) =>
-                    s.jsx(
-                      "div",
-                      {
-                        className: "h-1 flex-1 rounded-full transition-colors",
-                        style: {
-                          backgroundColor:
-                            G <= T.strengthLevel
-                              ? ce[T.strengthLevel]
-                              : "#e5e7eb",
-                        },
-                      },
-                      G,
-                    ),
-                  ),
-                }),
                   ],
                 }),
               ],
-            },
-            T.id,
-          ),
-        ),
+            }, T.id)),
+            }),
+          ],
+        }, group.id)),
       }),
       editingAccount &&
         s.jsx("div", {
@@ -11617,28 +11710,25 @@ function Kd({
             {
               className: "relative rounded-2xl overflow-hidden shadow-sm border border-gray-100",
               onPointerDown: (item) => {
+                if (item.target.closest(".kasa-project-actions, .kasa-project-link")) return;
                 projectStartX.current = item.clientX;
                 projectDidSwipe.current = !1;
-                item.currentTarget.setPointerCapture(item.pointerId);
               },
               onPointerUp: (item) => {
+                if (item.target.closest(".kasa-project-actions, .kasa-project-link")) return;
                 const delta = item.clientX - projectStartX.current;
                 projectDidSwipe.current = Math.abs(delta) > 12;
                 delta < -35 ? setOpenProject(S.id) : delta > 35 && setOpenProject(null);
-                item.currentTarget.hasPointerCapture(item.pointerId) &&
-                  item.currentTarget.releasePointerCapture(item.pointerId);
-              },
-              onPointerCancel: (item) => {
-                item.currentTarget.hasPointerCapture(item.pointerId) &&
-                  item.currentTarget.releasePointerCapture(item.pointerId);
               },
               onDragStart: (item) => item.preventDefault(),
               children: [
-                s.jsxs("div", { className: "absolute inset-y-0 right-0 flex", style: { width: "116px" }, children: [
-                  s.jsx("button", { onClick: () => editProject(S), className: "flex-1 text-white text-[10px] font-bold", style: { background: "#315A86" }, children: "Düzenle" }),
-                  s.jsx("button", { onClick: async () => { if (!(await kasaConfirm("Projeyi Sil", `“${S.name}” projesi kalıcı olarak silinsin mi?`))) return; deleteProject(S.id, S.name); setOpenProject(null); }, className: "flex-1 text-white text-[10px] font-bold", style: { background: "#B94A48" }, children: "Sil" }),
+                s.jsxs("div", { className: "kasa-project-actions absolute inset-y-0 right-0 flex", style: { width: "116px", zIndex: 0 }, onPointerDown: (event) => event.stopPropagation(), onPointerUp: (event) => event.stopPropagation(), onClick: (event) => event.stopPropagation(), children: [
+                  s.jsx("button", { type: "button", onClick: () => editProject(S), className: "flex-1 text-white text-[10px] font-bold", style: { background: "#315A86" }, children: "Düzenle" }),
+                  s.jsx("button", { type: "button", onClick: async () => { if (!(await kasaConfirm("Projeyi Sil", `“${S.name}” projesi kalıcı olarak silinsin mi?`))) return; deleteProject(S.id, S.name); setOpenProject(null); }, className: "flex-1 text-white text-[10px] font-bold", style: { background: "#B94A48" }, children: "Sil" }),
                 ] }),
-                s.jsxs("button", {
+                s.jsxs("div", {
+                  role: "button",
+                  tabIndex: 0,
                   onClick: () => {
                     if (projectDidSwipe.current) {
                       projectDidSwipe.current = !1;
@@ -11646,8 +11736,14 @@ function Kd({
                     }
                     openProject === S.id ? setOpenProject(null) : h(S);
                   },
+                  onKeyDown: (event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      h(S);
+                    }
+                  },
                   className: "kasa-swipe-hint relative w-full bg-white p-4 text-left active:scale-[0.98] transition-transform",
-                  style: { transform: openProject === S.id ? "translateX(-116px)" : "translateX(0)", transition: "transform 320ms cubic-bezier(.22,.8,.3,1)", touchAction: "pan-y", userSelect: "none", cursor: "grab" },
+                  style: { zIndex: 1, transform: openProject === S.id ? "translateX(-116px)" : "translateX(0)", transition: "transform 320ms cubic-bezier(.22,.8,.3,1)", touchAction: "pan-y", userSelect: "none", cursor: "grab" },
                   children: [
                 s.jsxs("div", {
                   className: "flex items-start justify-between mb-3",
@@ -11674,9 +11770,15 @@ function Kd({
                     }),
                   ],
                 }),
-                s.jsx("div", {
+                s.jsx("a", {
+                  href: S.url,
+                  target: "_blank",
+                  rel: "noreferrer",
+                  onClick: (event) => event.stopPropagation(),
+                  onPointerDown: (event) => event.stopPropagation(),
+                  onPointerUp: (event) => event.stopPropagation(),
                   className:
-                    "text-[11px] text-[#1B4DD8] bg-blue-50 rounded-xl px-3 py-2 mb-3 truncate",
+                    "kasa-project-link block text-[11px] text-[#1B4DD8] bg-blue-50 rounded-xl px-3 py-2 mb-3 truncate underline decoration-blue-200 underline-offset-2",
                   children: S.url.replace("https://", ""),
                 }),
                 s.jsx("div", {
@@ -11788,18 +11890,20 @@ function Gd({
       }),
       s.jsx("div", {
         className: "px-5 space-y-3 pb-4",
-        children: Te.map((Q) =>
+        children: Te.map((Q, noteIndex) =>
           s.jsxs(
             "div",
             {
               className:
                 "relative rounded-2xl overflow-hidden shadow-sm border border-gray-100",
               onPointerDown: (Be) => {
+                if (Be.target.closest(".kasa-note-actions")) return;
                 ee.current = Be.clientX;
                 noteDidSwipe.current = !1;
                 Be.currentTarget.setPointerCapture(Be.pointerId);
               },
               onPointerUp: (Be) => {
+                if (Be.target.closest(".kasa-note-actions")) return;
                 const Ae = Be.clientX - ee.current;
                 noteDidSwipe.current = Math.abs(Ae) > 12;
                 Ae < -35 ? F(Q.id) : Ae > 35 && F(null);
@@ -11813,25 +11917,32 @@ function Gd({
               onDragStart: (Be) => Be.preventDefault(),
               children: [
                 s.jsxs("div", {
-                  className: "absolute inset-y-0 right-0 flex",
-                  style: { width: "174px" },
+                  className: "kasa-note-actions absolute inset-y-0 right-0 flex",
+                  style: { width: "174px", zIndex: 0, pointerEvents: "auto" },
+                  onPointerDown: (event) => event.stopPropagation(),
+                  onPointerUp: (event) => event.stopPropagation(),
+                  onClick: (event) => event.stopPropagation(),
                   children: [
                     s.jsx("button", {
+                      type: "button",
                       onClick: () => (re({ ...Q, pinned: !Q.pinned }), F(null)),
                       className: "flex-1 text-white text-[10px] font-bold",
                       style: { background: "#A97924" },
                       children: Q.pinned ? "Sabiti Kaldır" : "📌 Sabitle",
                     }),
                     s.jsx("button", {
-                      onClick: () => De(Q),
+                      type: "button",
+                      onClick: () => (De(Q), F(null)),
                       className: "flex-1 text-white text-[10px] font-bold",
                       style: { background: "#315A86" },
                       children: "Düzenle",
                     }),
                     s.jsx("button", {
+                      type: "button",
                       onClick: async () => {
                         if (!(await kasaConfirm("Notu Sil", `“${Q.title}” notu kalıcı olarak silinsin mi?`))) return;
                         fe(Q.id, Q.title);
+                        F(null);
                       },
                       className: "flex-1 text-white text-[10px] font-bold",
                       style: { background: "#B94A48" },
@@ -11850,10 +11961,12 @@ function Gd({
                   className:
                     "relative w-full bg-white text-left transition-transform",
                   style: {
+                    position: "relative",
+                    zIndex: 1,
                     transform:
                       L === Q.id
                         ? "translateX(-174px)"
-                        : Re
+                        : Re && noteIndex === 0
                           ? "translateX(-38px)"
                           : "translateX(0)",
                     transition: "transform 320ms cubic-bezier(.22,.8,.3,1)",

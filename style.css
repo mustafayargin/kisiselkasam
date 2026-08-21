@@ -4440,6 +4440,41 @@
   pointer-events: none;
 }
 
+/* Hesap grubu başlıklarında mobil/masaüstü tarayıcının mavi odak kutusunu gizler. */
+.kasa-account-group-button,
+.kasa-account-group-button:focus,
+.kasa-account-group-button:focus-visible {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kasa-provider-logo {
+  display: block;
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+/* Not kartı kaydırıldığında işlem düğmeleri dokunmayı doğrudan alsın. */
+.kasa-note-actions,
+.kasa-note-actions button {
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Proje kartında gerçek link, detay tıklaması ve kaydırma düğmeleri ayrıdır. */
+.kasa-project-actions,
+.kasa-project-actions button,
+.kasa-project-link {
+  pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.kasa-project-link {
+  cursor: pointer;
+}
+
 /* Kisisel Kasa temali onay ve duzenleme pencereleri. */
 .kasa-dialog-overlay {
   position: absolute;
@@ -4797,7 +4832,6 @@
     padding: 28px 24px;
   }
 }
-
 /* Ana ekrandaki yazılara uzun basınca seçme ve Google arama açılmasını engeller */
 .kasa-phone-shell {
   -webkit-user-select: none;
